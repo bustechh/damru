@@ -49,19 +49,17 @@ const registerUser = asyncHandler(async (req,res)=>{
         throw new ApiError(409, "User with email or username already exists");
     }
 
-    const avatarLocalPath = req.files?.avatar?.[0]?.path;
+    let avatarLocalPath = req.files?.avatar?.[0]?.path;
     let coverImageLocalPath = req.files?.coverImage?.[0]?.path;
-
-    if(!avatarLocalPath){
-        throw new ApiError(400, "Avatar file is required");
+ 
+    let avatar = undefined
+    if(avatarLocalPath){
+        avatar = await uploadOnCloudinary(coverImageLocalPath, "yourtube/coverImage");
+        if(!avatar){
+            throw new ApiError(400, "failed to upload cover image to cloudinary");
+        }
     }
-
     
-    const avatar = await uploadOnCloudinary(avatarLocalPath, "yourtube/avatar");
-    if(!avatar){
-        throw new ApiError(400, "falied to upload avatar to cloudinary")
-    }
-
     let coverImage = undefined
     if(coverImageLocalPath){
         coverImage = await uploadOnCloudinary(coverImageLocalPath, "yourtube/coverImage");
